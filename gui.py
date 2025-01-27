@@ -47,6 +47,7 @@ class RasterCanvas(FigureCanvas):
 
         self.ax.set_xlabel('Time (ms)')
         self.ax.set_ylabel('Trial #')
+        self.ax.set_title('Raster plot')
 
         self.draw()
 
@@ -72,6 +73,7 @@ class PSTHCanvas(FigureCanvas):
 
         self.ax.set_xlabel('Time (ms)')
         self.ax.set_ylabel('Firing rate (Hz)')
+        self.ax.set_title('PSTH plot')
         
         self.draw()
 
@@ -122,13 +124,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("BYB SpikerBox Plotter")
         self.setFixedSize(1200, 720)
 
-        # Load wav button and text field
-        self.wav_button = QPushButton('Load .wav file (ephys recording from BYB SpikerBox)')
-        self.wav_button.clicked.connect(self.load_wav_file)
-        self.wav_button.setFont(QFont("Arial",20))
-        self.wav_file_label = QLineEdit()
-        self.wav_file_label.setReadOnly(True)
-        self.wav_file_label.setFont(QFont("Arial",16))
+        # # Load wav button and text field
+        # self.wav_button = QPushButton('Load .wav file (ephys recording from BYB SpikerBox)')
+        # self.wav_button.clicked.connect(self.load_wav_file)
+        # self.wav_button.setFont(QFont("Arial",20))
+        # self.wav_file_label = QLineEdit()
+        # self.wav_file_label.setReadOnly(True)
+        # self.wav_file_label.setFont(QFont("Arial",16))
 
         # Load events button and text field
         self.txt_button = QPushButton('Load .txt file (output from BYB SpikeSorter)')
@@ -183,9 +185,10 @@ class MainWindow(QMainWindow):
 
         # Layouts
         left_layout = QVBoxLayout()
-        left_layout.addWidget(self.wav_button)
-        left_layout.addWidget(self.wav_file_label)
-        left_layout.addStretch(1)
+
+        # left_layout.addWidget(self.wav_button)
+        # left_layout.addWidget(self.wav_file_label)
+        # left_layout.addStretch(1)
 
         left_layout.addWidget(self.txt_button)
         left_layout.addWidget(self.txt_file_label)
