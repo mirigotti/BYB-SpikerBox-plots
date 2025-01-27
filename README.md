@@ -1,5 +1,7 @@
 # BYB-SpikerBox-plots
-GUI (Graphical User Interface) for analysis and plots of Backyard Brains SpikerBox ephys. data, for use in GT NEUR2001 labs
+GUI (Graphical User Interface) for analysis and plots of Backyard Brains SpikerBox ephys. data, for use in NEUR2001 lab course at Georgia Tech 
+
+Sample files provided by instructors of NEUR2001
 
 ---
 
