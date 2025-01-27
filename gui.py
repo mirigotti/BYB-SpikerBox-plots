@@ -64,7 +64,7 @@ class PSTHCanvas(FigureCanvas):
 
         self.ax.clear()
 
-        self.ax.plot(t_binned, psth_data)
+        self.ax.plot(t_binned, psth_data, linewidth=2)
         self.ax.axvline(0, color='k', linestyle='--', linewidth=1)
 
         self.ax.set_xlim([t_binned[0], t_binned[-1]])
@@ -119,38 +119,38 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Spike Analysis")
+        self.setWindowTitle("BYB SpikerBox Plotter")
         self.setFixedSize(1200, 720)
 
         # Load wav button and text field
-        self.wav_button = QPushButton('Load .wav File')
+        self.wav_button = QPushButton('Load .wav file (ephys recording from BYB SpikerBox)')
         self.wav_button.clicked.connect(self.load_wav_file)
-        self.wav_button.setFont(QFont("Arial",16))
+        self.wav_button.setFont(QFont("Arial",20))
         self.wav_file_label = QLineEdit()
         self.wav_file_label.setReadOnly(True)
-        self.wav_file_label.setFont(QFont("Arial",14))
+        self.wav_file_label.setFont(QFont("Arial",16))
 
         # Load events button and text field
-        self.txt_button = QPushButton('Load .txt File')
+        self.txt_button = QPushButton('Load .txt file (output from BYB SpikeSorter)')
         self.txt_button.clicked.connect(self.load_txt_file)
-        self.txt_button.setFont(QFont("Arial",16))
+        self.txt_button.setFont(QFont("Arial",20))
         self.txt_file_label = QLineEdit()
         self.txt_file_label.setReadOnly(True)
-        self.txt_file_label.setFont(QFont("Arial",14))
+        self.txt_file_label.setFont(QFont("Arial",16))
 
         # Time input fields
         self.window_start_label = QLabel('Window start (ms):')
-        self.window_start_label.setFont(QFont("Arial",16))
+        self.window_start_label.setFont(QFont("Arial",20))
         self.window_start_input = QLineEdit()
-        self.window_start_input.setFont(QFont("Arial",14))
+        self.window_start_input.setFont(QFont("Arial",16))
         self.window_end_label = QLabel('Window end (ms):')
-        self.window_end_label.setFont(QFont("Arial",16))
+        self.window_end_label.setFont(QFont("Arial",20))
         self.window_end_input = QLineEdit()
-        self.window_end_input.setFont(QFont("Arial",14))
+        self.window_end_input.setFont(QFont("Arial",16))
         self.bin_size_label = QLabel('Bin size (ms):')
-        self.bin_size_label.setFont(QFont("Arial",16))
-        self.bin_size_input = QSpinBox()
-        self.bin_size_input.setFont(QFont("Arial",14))
+        self.bin_size_label.setFont(QFont("Arial",20))
+        self.bin_size_input = QSpinBox(minimum=1, maximum=1000)
+        self.bin_size_input.setFont(QFont("Arial",16))
         input_layout = QVBoxLayout()
         input_layout.addWidget(self.window_start_label)
         input_layout.addWidget(self.window_start_input)
@@ -166,16 +166,16 @@ class MainWindow(QMainWindow):
         self.generate_button = QPushButton('Generate plots')
         self.generate_button.setStyleSheet("background-color: green")
         self.generate_button.clicked.connect(self.generate_plots)
-        self.generate_button.setFont(QFont("Arial",16))
+        self.generate_button.setFont(QFont("Arial",20))
 
         self.export_label = QLabel('Export plots:')
-        self.export_label.setFont(QFont("Arial",16))
+        self.export_label.setFont(QFont("Arial",20))
         self.export_input = QLineEdit()
-        self.export_input.setFont(QFont("Arial",14))
+        self.export_input.setFont(QFont("Arial",16))
         self.export_input.setText('output')
         self.export_button = QPushButton('Export')
         self.export_button.clicked.connect(self.export_plots)
-        self.export_button.setFont(QFont("Arial",16))
+        self.export_button.setFont(QFont("Arial",20))
 
         # Right side plots
         self.canvas1 = RasterCanvas(self)
@@ -216,38 +216,61 @@ class MainWindow(QMainWindow):
         self.analysis = SpikeAnalysis()
 
     def load_wav_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open .wav File", "", "WAV Files (*.wav);;All Files (*)")
-        # check if file is a wav file
-        # if file_name and not file_name.endswith('.wav'):
-        if file_name:
-            self.wav_file_label.setText(file_name)
+        self.show_info_popup("Not implemented yet :(\nPlease process your .wav file with the BYB SpikeSorter software to generate a .txt file with spike events, and load that instead.")
+        
+        # file_name, _ = QFileDialog.getOpenFileName(self, "Open .wav File", "", "WAV Files (*.wav);;All Files (*)")
+        # # check if file is a wav file
+        # # if file_name and not file_name.endswith('.wav'):
+        # if file_name:
+        #     self.wav_file_label.setText(file_name)
 
     def load_txt_file(self):
         file_name, _ = QFileDialog.getOpenFileName(self, "Open .txt File", "", "Text Files (*.txt);;All Files (*)")
         if file_name:
             self.txt_file_label.setText(file_name)
         
-        self.analysis.load_events(file_name)
+        if os.path.exists(file_name):
+            self.analysis.load_events(file_name)
+
+        # else:
+        #     self.show_info_popup('No file selected')
 
     def generate_plots(self):
-        # check if self.window_start.text() is a number
-        # if not self.window_start_input.text().isnumeric():
-        #     # error popup window
-        #     self.show_error_popup('Window start must be a number')
-        #     return
+        # check if self.window_start.text() is an integer
+        text = self.window_start_input.text()
+        if text[0] == '-':
+            text = text[1:]
+        if not text.isnumeric():
+            self.show_error_popup('Window start must be an integer')
+            return
+
         # # check if self.window_end.text() is a number
-        # if not self.window_end_input.text().isnumeric():
-        #     self.show_error_popup('Window end must be a number')
-        #     return
+        text = self.window_end_input.text()
+        if text[0] == '-':
+            text = text[1:]
+        if not text.isnumeric():
+            self.show_error_popup('Window end must be an integer')
+            return
+        
         # check if self.integer_input.value() is an integer
         if self.bin_size_input.value() <= 0:
             self.show_error_popup('Bin size must be a positive integer')
             return
         
+        # check difference bewteen window start and window end is more than binsize
+        binsize = self.bin_size_input.value()
+        if int(self.window_end_input.text()) - int(self.window_start_input.text()) <= binsize:
+            self.show_error_popup('Window end must be greater than window start + bin size')
+            return
+
+        if self.analysis.events is None or not self.analysis.neuron_events:
+            self.show_error_popup('Please load a .txt file with spike events')
+            return
+
+        self.analysis.set_bin_size(self.bin_size_input.value())
         self.analysis.trialize_data(pre_event_duration=int(self.window_start_input.text()), 
                                     post_event_duration=int(self.window_end_input.text()))
-        self.analysis.set_bin_size(self.bin_size_input.value())
-
+        
         self.canvas1.update_plot(self.analysis)
         self.canvas2.update_plot(self.analysis)
 
@@ -265,7 +288,7 @@ class MainWindow(QMainWindow):
         self.set_save_directory()
         
         if not hasattr(self, 'save_directory_path') or not self.save_directory_path:
-            self.show_error_popup('Please select a directory to save the plots.')
+            self.show_error_popup('Please select a directory to save the plots')
             return
 
         file_name = self.export_input.text()
