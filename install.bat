@@ -1,3 +1,7 @@
+:: activate conda
+set CONDA_PATH=C:\tools\Anaconda3\Scripts\activate.bat
+call %CONDA_PATH%
+
 :: create conda env
 call conda create -n plotter python=3.12
 
