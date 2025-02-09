@@ -94,10 +94,17 @@ class SpikeAnalysis:
         
         self.trials = trials
 
-        trials_matrix = np.zeros((len(trials), int((self.post_event_duration - self.pre_event_duration)/10)))
+        MAX_PIXELS = 700
+        if int((self.post_event_duration - self.pre_event_duration)) > MAX_PIXELS:
+            bin_scale = int(np.ceil((self.post_event_duration - self.pre_event_duration) / MAX_PIXELS))
+            print(f"Time window too big to show all single spikes. Grouping spikes into {bin_scale}ms bins for raster plot.")
+        else:
+            bin_scale = 1
+
+        trials_matrix = np.zeros((len(trials), int((self.post_event_duration - self.pre_event_duration)/bin_scale)))
         for i, (event, trial_spikes_aligned) in enumerate(trials):
             for spike_time in trial_spikes_aligned:
-                spike_bin = int((spike_time - self.pre_event_duration)/10)
+                spike_bin = int((spike_time - self.pre_event_duration)/bin_scale)
                 trials_matrix[i, spike_bin] += 1
 
         self.trials_matrix = trials_matrix
@@ -119,13 +126,16 @@ class SpikeAnalysis:
             bins = np.arange(self.pre_event_duration, self.post_event_duration+self.bin_size, self.bin_size)
             binned_spikes, _ = np.histogram(spike_times, bins=bins)
             binned_trials.append((event, binned_spikes))
-        
+
         t_binned = np.arange(self.pre_event_duration, 
                              self.post_event_duration, 
-                             self.bin_size)
+                             self.bin_size) + self.bin_size / 2
 
         binned_trials_arr = np.stack([binned_spikes for event, binned_spikes in binned_trials])
         psth_data = np.mean(binned_trials_arr, axis=0) / (self.bin_size / 1000)
+
+        self.t_binned = t_binned
+        self.psth_data = psth_data
 
         return t_binned, psth_data
 

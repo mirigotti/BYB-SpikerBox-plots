@@ -18,7 +18,7 @@ from PyQt6.QtGui import QPixmap, QFont
 
 class RasterCanvas(FigureCanvas):
 
-    def __init__(self, parent=None, width=6, height=3, dpi=100):
+    def __init__(self, parent=None, width=6, height=3, dpi=200):
         fig = Figure(figsize=(width, height), dpi=dpi, constrained_layout=True)
         self.ax = fig.add_subplot(111)#, position=[0.1, 0.15, 0.85, 0.8])
         self.ax.axis('off')
@@ -41,19 +41,23 @@ class RasterCanvas(FigureCanvas):
         #     event, spike_times = trial
         #     self.ax.plot(spike_times, tr + np.ones_like(spike_times), 'o', markersize=2)
         
-        self.ax.axvline(0, color='k', linestyle='--', linewidth=1)
+        self.ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
 
         self.ax.set_xlim([analysis.pre_event_duration, analysis.post_event_duration])
 
-        self.ax.set_xlabel('Time (ms)')
-        self.ax.set_ylabel('Trial #')
-        self.ax.set_title('Raster plot')
+        for spine in self.ax.spines.values():
+            spine.set_linewidth(0.4)
+        self.ax.tick_params(axis='both', which='both', labelsize=5, pad=1, width=0.4, length=2)
+
+        self.ax.set_xlabel('Time (ms)', fontsize=5, labelpad=2)
+        self.ax.set_ylabel('Trial #', fontsize=5, labelpad=2)
+        self.ax.set_title('Raster plot', fontsize=6, pad=3)
 
         self.draw()
 
 class PSTHCanvas(FigureCanvas):
 
-    def __init__(self, parent=None, width=6, height=3, dpi=100):
+    def __init__(self, parent=None, width=6, height=3, dpi=200):
         fig = Figure(figsize=(width, height), dpi=dpi, constrained_layout=True)
         self.ax = fig.add_subplot(111)#, position=[0.1, 0.15, 0.85, 0.8])
         self.ax.axis('off')
@@ -65,15 +69,20 @@ class PSTHCanvas(FigureCanvas):
 
         self.ax.clear()
 
-        self.ax.plot(t_binned, psth_data, linewidth=2)
-        self.ax.axvline(0, color='k', linestyle='--', linewidth=1)
+        self.ax.plot(t_binned, psth_data, linewidth=1)
+        self.ax.axvline(0, color='k', linestyle='--', linewidth=0.5)
 
-        self.ax.set_xlim([t_binned[0], t_binned[-1]])
+        # self.ax.set_xlim([t_binned[0], t_binned[-1]])
+        self.ax.set_xlim([analysis.pre_event_duration, analysis.post_event_duration])
         self.ax.set_ylim(bottom=0)
 
-        self.ax.set_xlabel('Time (ms)')
-        self.ax.set_ylabel('Firing rate (Hz)')
-        self.ax.set_title('PSTH plot')
+        for spine in self.ax.spines.values():
+            spine.set_linewidth(0.4)
+        self.ax.tick_params(axis='both', which='both', labelsize=5, pad=1, width=0.4, length=2)
+
+        self.ax.set_xlabel('Time (ms)', fontsize=5, labelpad=2)
+        self.ax.set_ylabel('Firing rate (Hz)', fontsize=5, labelpad=2)
+        self.ax.set_title('PSTH plot', fontsize=6, pad=3)
         
         self.draw()
 
@@ -302,7 +311,15 @@ class MainWindow(QMainWindow):
         self.canvas1.figure.savefig(canvas1_path)
         self.canvas2.figure.savefig(canvas2_path)
 
-        self.show_info_popup(f'Plots saved to {self.save_directory_path}')
+        # save csv file with psth data
+
+        csv1_path = os.path.join(self.save_directory_path, f'{file_name}_alldata.csv')
+        csv2_path = os.path.join(self.save_directory_path, f'{file_name}_psth.csv')
+
+        np.savetxt(csv1_path, self.analysis.trials_matrix, delimiter=',')
+        np.savetxt(csv2_path, np.vstack((self.analysis.t_binned, self.analysis.psth_data)).T, delimiter=',')
+
+        self.show_info_popup(f'Plots and csv files saved to {self.save_directory_path}')
 
     # def show_interactive_plot(self):
     #     dialog = InteractivePlotDialog(self)
