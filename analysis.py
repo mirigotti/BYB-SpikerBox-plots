@@ -52,33 +52,6 @@ class SpikeAnalysis:
 
         print(f"Loaded {len(events)} experiment events.")
         print(f"Loaded {len(neuron_events)} neurons events.")
-
-        # neuron_ids = np.unique([n for n, t in self.neuron_events])
-        # neuron_id = neuron_ids[0]
-
-        # spike_times = [t for n, t in self.neuron_events if n == neuron_id]
-
-        # spike_times = {}
-        # for neuron, timestamp in self.neuron_events:
-        #     if neuron not in spike_times:
-        #         spike_times[neuron] = []
-        #     spike_times[neuron].append(timestamp)
-
-        # self.spike_times = spike_times
-
-    # base_path = '/Users/mattiathompson/Documents/Projects/spike-analysis/samples'
-    # # file_name = 'BYB_Recording_2018-02-28_14.01.34.wav'
-    # # file_name = 'BYB_Recording_2018-02-28_14.11.33.wav'
-    # file_name = 'BYB_Recording_2018-09-20_13.12.48.wav'
-    # data_file_path = os.path.join(base_path, file_name)
-    # events_file_path = data_file_path.replace('.wav', '-events.txt')
-
-    # if os.path.exists(events_file_path):
-    #     events, neuron_events = load_events(events_file_path)
-    #     print(f"Loaded {len(events)} experiment events.")
-    #     print(f"Loaded {len(neuron_events)} neurons events.")
-    # else:
-    #     print("No events file found.")
  
     def trialize_data(self, pre_event_duration=-1000, post_event_duration=5000):
 
@@ -109,7 +82,6 @@ class SpikeAnalysis:
 
         self.trials_matrix = trials_matrix
 
-
     def get_trial_data(self):
 
         return self.trials, self.trials_matrix
@@ -138,33 +110,4 @@ class SpikeAnalysis:
         self.psth_data = psth_data
 
         return t_binned, psth_data
-
-# %%
-# trialize data
-
-# pre_event_duration = -5
-# post_event_duration = 10
-# bin_size = 0.1
-
-# def trialize_data(events, neuron_events, pre_event_duration=-1, post_event_duration=5):
-#     trials = []
-#     for event, timestamp in events:
-#         trial_start = timestamp + pre_event_duration
-#         trial_end = timestamp + post_event_duration
-#         trial_spikes_aligned = [t - timestamp for n, t in neuron_events if t >= trial_start and t <= trial_end]
-#         trials.append((event, trial_spikes_aligned))
-#     return trials
-
-# trials = trialize_data(events, neuron_events, pre_event_duration=pre_event_duration, post_event_duration=post_event_duration)
-
-
-
-# binned_trials = bin_spikes(trials, bin_size=bin_size, 
-#                            pre_event_duration=pre_event_duration, post_event_duration=post_event_duration)
-
-
-# plt.axvline(0, color='w', linestyle='-', linewidth=1)
-# plt.show()
-
-# psth = np.mean(binned_trials_arr, axis=0) / bin_size
 

@@ -313,11 +313,12 @@ class MainWindow(QMainWindow):
 
         # save csv file with psth data
 
-        csv1_path = os.path.join(self.save_directory_path, f'{file_name}_alldata.csv')
-        csv2_path = os.path.join(self.save_directory_path, f'{file_name}_psth.csv')
+        csv_path = os.path.join(self.save_directory_path, f'{file_name}_psth.csv')
 
-        np.savetxt(csv1_path, self.analysis.trials_matrix, delimiter=',')
-        np.savetxt(csv2_path, np.vstack((self.analysis.t_binned, self.analysis.psth_data)).T, delimiter=',')
+        np.savetxt(csv_path, np.vstack((self.analysis.t_binned.astype(np.float32), 
+                                        (self.analysis.psth_data * self.analysis.bin_size/1000).astype(np.float32))).T, 
+                             delimiter=',',
+                             fmt='%.3f',)
 
         self.show_info_popup(f'Plots and csv files saved to {self.save_directory_path}')
 
